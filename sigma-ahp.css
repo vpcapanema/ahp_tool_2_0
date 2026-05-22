@@ -1,7 +1,3 @@
-@import url("./templates_modelo/style_global_reset_base.css");
-@import url("./assets/css/components/style_navbar_public.css");
-@import url("./assets/css/components/style_govsp_bridge_transitions.css");
-
 :root {
   --ahp-surface: rgba(255, 255, 255, 0.92);
   --ahp-surface-strong: #ffffff;
@@ -13,6 +9,8 @@
   --ahp-radius-sm: 14px;
   --ahp-page-width: min(1360px, calc(100vw - 32px));
   --ahp-footer-clearance: clamp(96px, 12vh, 152px);
+  /* Escala global reduzida em 20% */
+  --global-scale: 0.8;
   /* Aliases para variáveis legadas usadas em scripts inline */
   --pli-azul-escuro: var(--pli-deep);
   --pli-azul-principal: var(--pli-blue);
@@ -25,6 +23,7 @@
 
 html {
   scroll-behavior: smooth;
+  font-size: calc(20.24px * var(--global-scale));
 }
 
 body.ahp-app {
@@ -36,6 +35,7 @@ body.ahp-app {
     radial-gradient(circle at top left, rgba(62, 194, 110, 0.18), transparent 28%),
     radial-gradient(circle at top right, rgba(17, 101, 147, 0.16), transparent 22%),
     linear-gradient(180deg, #f7fafc 0%, #eef3f6 48%, #f4f6f8 100%);
+  transform-origin: top left;
 }
 
 body.ahp-app a {
@@ -111,6 +111,8 @@ body.ahp-app .process-card {
   width: var(--ahp-page-width);
   margin: 0 auto;
   padding: 24px 0 48px;
+  transform: scale(var(--global-scale));
+  transform-origin: top center;
 }
 
 .ahp-hero {
@@ -265,6 +267,7 @@ body.ahp-app .process-card {
   border-radius: 26px;
   box-shadow: var(--ahp-shadow-soft);
   padding: 28px;
+  text-align: left;
 }
 
 .info-card--spaced {
@@ -281,11 +284,14 @@ body.ahp-app .process-card {
 
 .section-title,
 .step-title {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr;
   align-items: center;
   gap: 14px;
   margin-bottom: 22px;
   font-size: clamp(1.2rem, 2vw, 1.7rem);
+  text-align: left;
+  width: 100%;
 }
 
 .step-number,
@@ -296,7 +302,7 @@ body.ahp-app .process-card {
   justify-content: center;
   width: 42px;
   height: 42px;
-  margin: 0 auto;
+  margin: 0;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--pli-green) 0%, var(--pli-blue) 100%);
   color: #ffffff;
@@ -331,6 +337,7 @@ body.ahp-app .process-card {
 .info-card-header h3 {
   width: 100%;
   text-align: center;
+  font-size: 1.2rem;
 }
 
 .info-card-content,
@@ -626,13 +633,13 @@ textarea {
   width: 100%;
   min-height: 48px;
   padding: 12px 14px;
-  border: 1px solid rgba(28, 61, 89, 0.16);
+  border: 2px solid rgba(28, 61, 89, 0.25);
   border-radius: 14px;
   background: #ffffff;
   color: var(--pli-text);
   font-family: inherit;
   font-size: var(--font-size-sm);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
 .c-form-control:focus,
@@ -648,6 +655,7 @@ textarea:focus {
 .form-help {
   color: var(--pli-text-muted);
   font-size: var(--font-size-xs);
+  text-align: left;
 }
 
 .recommendation-box,
@@ -789,6 +797,7 @@ textarea:focus {
   border: 1px solid rgba(28, 61, 89, 0.12);
   border-radius: 18px;
   background: #ffffff;
+  table-layout: auto;
 }
 
 .matrix-table th,
@@ -796,9 +805,23 @@ textarea:focus {
   padding: 14px 12px;
   border-bottom: 1px solid rgba(28, 61, 89, 0.08);
   border-right: 1px solid rgba(28, 61, 89, 0.08);
-  text-align: left;
+  text-align: center;
   vertical-align: middle;
   font-size: var(--font-size-xs);
+  height: auto;
+  min-height: 60px;
+}
+
+.matrix-table th {
+  min-width: 120px;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.matrix-table select {
+  max-width: 100%;
+  min-width: 80px;
+  width: auto;
 }
 
 .matrix-table th:last-child,

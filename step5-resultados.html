@@ -9,21 +9,22 @@
     <link rel="stylesheet" href="assets/govsp/css/rodape-padrao-govsp.min.css">
     <link rel="stylesheet" href="templates_modelo/style_global_reset_base.css">
     <link rel="stylesheet" href="templates_modelo/style_template_base_aplicacao.css">
+    <link rel="stylesheet" href="assets/css/components/style_navbar_public.css">
+    <link rel="stylesheet" href="assets/css/components/style_govsp_bridge_transitions.css">
     <link rel="stylesheet" href="sigma-ahp.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 </head>
 <body class="cadastro-page app-template-page ahp-app vw-page preview-sticky-footer">
-    <div id="cabecalho-fragment-anchor"></div>
     <main class="sigma-main ahp-main">
         <div class="cf-main ahp-shell">
             <header class="vw-header">
                 <div class="vw-header__left">
                     <nav class="vw-breadcrumb" aria-label="Breadcrumb">
                         <a href="sigma-ahp.html">Início</a>
-                        <svg class="app-template-inline-icon app-template-inline-icon--crumb" viewBox="0 0 16 16" aria-hidden="true"><use href="templates_modelo/app_template_icon_sprite.svg#app-icon-chevron-right"></use></svg>
+                        <i class="fas fa-chevron-right app-template-inline-icon app-template-inline-icon--crumb" aria-hidden="true"></i>
                         <a href="step4-comparacao.html">Etapa 4</a>
-                        <svg class="app-template-inline-icon app-template-inline-icon--crumb" viewBox="0 0 16 16" aria-hidden="true"><use href="templates_modelo/app_template_icon_sprite.svg#app-icon-chevron-right"></use></svg>
+                        <i class="fas fa-chevron-right app-template-inline-icon app-template-inline-icon--crumb" aria-hidden="true"></i>
                         <span>Etapa 5</span>
                     </nav>
                     <h1 class="vw-header__title"><i class="fas fa-chart-column app-template-title-icon" aria-hidden="true"></i>Etapa 5: Resultados</h1>
@@ -31,12 +32,12 @@
                 </div>
             </header>
 
-            <p class="cf-info-note"><svg class="app-template-inline-icon app-template-inline-icon--info" viewBox="0 0 20 20" aria-hidden="true"><use href="templates_modelo/app_template_icon_sprite.svg#app-icon-info"></use></svg>Esta etapa consolida a decisão multicritério e expõe os dados para conferência técnica, documentação e compartilhamento.</p>
+            <p class="cf-info-note"><i class="fas fa-info-circle app-template-inline-icon app-template-inline-icon--info" aria-hidden="true"></i>Esta etapa consolida a decisão multicritério e expõe os dados para conferência técnica, documentação e compartilhamento.</p>
 
             <div class="progress-container"><div class="progress-bar"><div class="progress-step completed"><div class="progress-circle">1</div><span>Critérios</span></div><div class="progress-step completed"><div class="progress-circle">2</div><span>Nomes</span></div><div class="progress-step completed"><div class="progress-circle">3</div><span>Método</span></div><div class="progress-step completed"><div class="progress-circle">4</div><span>Comparação</span></div><div class="progress-step active"><div class="progress-circle">5</div><span>Resultados</span></div></div></div>
 
             <section class="cf-section">
-                <div class="cf-section__header"><svg class="app-template-inline-icon app-template-inline-icon--section" viewBox="0 0 20 20" aria-hidden="true"><use href="templates_modelo/app_template_icon_sprite.svg#app-icon-compass"></use></svg><span>Contexto da Etapa</span></div>
+                <div class="cf-section__header"><i class="fas fa-compass app-template-inline-icon app-template-inline-icon--section" aria-hidden="true"></i><span>Contexto da Etapa</span></div>
                 <div class="cf-section__body">
                     <section class="ahp-section info-card"><div class="info-card-header"><i class="fas fa-check-circle"></i><h2>Resultados da Análise AHP</h2></div><div class="info-card-content"><p>Confira abaixo os <strong>pesos calculados</strong> para cada critério e o <strong>índice de consistência</strong> das comparações realizadas.</p><div class="info-highlights"><div class="info-item"><i class="fas fa-percent"></i><div><strong>Pesos dos Critérios</strong><p>Indicam a importância relativa de cada critério no processo decisório.</p></div></div><div class="info-item"><i class="fas fa-check-double"></i><div><strong>Razão de Consistência (CR)</strong><p>Valores abaixo de 0,10 indicam que as comparações são consistentes e confiáveis.</p></div></div><div class="info-item"><i class="fas fa-file-download"></i><div><strong>Exportar Resultados</strong><p>Salve os resultados em PDF, Excel ou CSV para documentação e compartilhamento.</p></div></div></div></div></section>
                 </div>

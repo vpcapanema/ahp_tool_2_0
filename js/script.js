@@ -146,10 +146,10 @@ function selectComparisonMethod() {
     }
   }
   // Navegação tratada pelas abas no HTML
-  
+
   const h2 = document.querySelector("#pairwise-title");
   const instructionP = document.querySelector("#step4 .instruction");
-  
+
   if (chosenMethod === "direct") {
     h2.textContent = "4. Matriz direta de comparação pareada dos critérios";
     instructionP.textContent = "Para cada célula (ou par) da matriz, selecione a intensidade de importância que indica o quanto o critério da linha é mais importante que o da coluna. Os valores recíprocos serão calculados automaticamente.";
@@ -277,6 +277,9 @@ function updateReciprocal(i, j) {
   if (cell) {
     cell.innerHTML = reciprocal;
   }
+  // Atualiza também o valor no objeto pairwiseValues para o par oposto
+  const reciprocalKey = "pair_" + j + "_" + i;
+  pairwiseValues[reciprocalKey] = 1 / val;
 }
 
 // -----------------------------------------------------------
@@ -481,4 +484,212 @@ function exportXLSX() {
   let wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Relatório AHP");
   XLSX.writeFile(wb, "matriz_ahp.xlsx");
+}
+
+// -----------------------------------------------------------
+// Step 4: Gera matriz direta específica para step4-comparacao.html
+// -----------------------------------------------------------
+function generateDirectMatrixStep4() {
+  const n = criteria.length;
+  const container = document.getElementById('comparisonContent');
+  let html = '<div style="overflow-x: auto;"><table class="matrix-table">';
+  html += '<thead><tr><th></th>';
+  for (let j = 0; j < n; j++) {
+    html += `<th>${criteria[j]}</th>`;
+  }
+  html += '</tr></thead><tbody>';
+  for (let i = 0; i < n; i++) {
+    html += '<tr>';
+    html += `<th>${criteria[i]}</th>`;
+    for (let j = 0; j < n; j++) {
+      if (i === j) {
+        html += '<td><strong>1</strong></td>';
+      } else if (i < j) {
+        html += `<td>${createSelectInputStep4(i, j)}</td>`;
+      } else {
+        const key = "pair_" + j + "_" + i;
+        const currentVal = pairwiseValues[key] || 1;
+        const reciprocal = (1 / currentVal).toFixed(4);
+        html += `<td id="recip_${i}_${j}">${reciprocal}</td>`;
+      }
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table></div>';
+  html += '<div style="margin-top: 16px; padding: 12px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">';
+  html += '<p style="margin: 0; color: #856404; font-size: 0.9rem; text-align: justify;"><i class="fas fa-info-circle"></i> <strong>Nota:</strong> Todas as células podem ser preenchidas. Ao selecionar um valor em qualquer célula, a célula oposta (simétrica) será automaticamente preenchida com o valor recíproco. Exemplo: se você selecionar 3 na célula [A,B], a célula [B,A] será automaticamente ajustada para 1/3.</p>';
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+// -----------------------------------------------------------
+// Step 4: Cria select específico para matriz direta
+// -----------------------------------------------------------
+function createSelectInputStep4(i, j) {
+  const options = [
+    {value: 1/9, label: "1/9"},
+    {value: 1/8, label: "1/8"},
+    {value: 1/7, label: "1/7"},
+    {value: 1/6, label: "1/6"},
+    {value: 1/5, label: "1/5"},
+    {value: 1/4, label: "1/4"},
+    {value: 1/3, label: "1/3"},
+    {value: 1/2, label: "1/2"},
+    {value: 1,   label: "1"},
+    {value: 2,   label: "2"},
+    {value: 3,   label: "3"},
+    {value: 4,   label: "4"},
+    {value: 5,   label: "5"},
+    {value: 6,   label: "6"},
+    {value: 7,   label: "7"},
+    {value: 8,   label: "8"},
+    {value: 9,   label: "9"}
+  ];
+  const selectId = "pair_" + i + "_" + j;
+  let selectHtml = `<select id="${selectId}" onchange="updateReciprocalStep4(${i}, ${j})">`;
+  for (let opt of options) {
+    let selected = (Number(opt.value) === 1) ? "selected" : "";
+    selectHtml += `<option value="${opt.value}" ${selected}>${opt.label}</option>`;
+  }
+  selectHtml += "</select>";
+  pairwiseValues[selectId] = 1;
+  return selectHtml;
+}
+
+// -----------------------------------------------------------
+// Step 4: Atualiza recíproco específico para matriz direta
+// -----------------------------------------------------------
+function updateReciprocalStep4(i, j) {
+  const selectId = "pair_" + i + "_" + j;
+  const selectElement = document.getElementById(selectId);
+  if (!selectElement) {
+    console.error("Select element not found:", selectId);
+    return;
+  }
+  const val = parseFloat(selectElement.value);
+  pairwiseValues[selectId] = val;
+
+  // A célula recíproca está na posição (j, i), não (i, j)
+  const reciprocalCellId = "recip_" + j + "_" + i;
+  const reciprocal = (1 / val).toFixed(4);
+  const cell = document.getElementById(reciprocalCellId);
+  console.log("Updating reciprocal cell:", reciprocalCellId, "with value:", reciprocal);
+  if (cell) {
+    cell.innerHTML = reciprocal;
+  } else {
+    console.error("Reciprocal cell not found:", reciprocalCellId);
+  }
+
+  // Atualiza também o valor no objeto pairwiseValues para o par oposto
+  const reciprocalKey = "pair_" + j + "_" + i;
+  pairwiseValues[reciprocalKey] = 1 / val;
+
+  // Aplica esquema de cores para relacionar valores opostos
+  applyColorScheme(selectElement, cell, val);
+}
+
+// -----------------------------------------------------------
+// Aplica esquema de cores para valores relacionados
+// -----------------------------------------------------------
+function applyColorScheme(selectElement, reciprocalCell, val) {
+  let bgColor, textColor, borderColor;
+
+  // Normaliza o valor para escala de 1 a 9 (valores < 1 são tratados como recíprocos)
+  let normalizedVal = val >= 1 ? val : 1 / val;
+  normalizedVal = Math.min(Math.max(normalizedVal, 1), 9);
+
+  // Calcula intensidade baseada no valor (1 = claro, 9 = escuro)
+  const intensity = (normalizedVal - 1) / 8; // 0 a 1
+
+  if (val > 1) {
+    // Primeiro critério mais importante - degrade de verde
+    // Verde claro (62, 194, 110) a verde escuro (13, 92, 61)
+    const r = Math.round(62 - (62 - 13) * intensity);
+    const g = Math.round(194 - (194 - 92) * intensity);
+    const b = Math.round(110 - (110 - 61) * intensity);
+    const alpha = 0.1 + (0.25 * intensity);
+    bgColor = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    textColor = `rgb(${r - 20}, ${g - 40}, ${b - 20})`;
+    borderColor = `rgba(${r}, ${g}, ${b}, ${0.3 + (0.4 * intensity)})`;
+  } else if (val < 1) {
+    // Segundo critério mais importante - degrade de laranja/amarelo
+    // Amarelo claro (255, 193, 7) a laranja escuro (255, 140, 0)
+    const r = 255;
+    const g = Math.round(193 - (193 - 140) * intensity);
+    const b = Math.round(7 - (7 - 0) * intensity);
+    const alpha = 0.1 + (0.25 * intensity);
+    bgColor = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    textColor = `rgb(${r - 40}, ${g - 40}, ${b + 20})`;
+    borderColor = `rgba(${r}, ${g}, ${b}, ${0.3 + (0.4 * intensity)})`;
+  } else {
+    // Igual importância - neutro
+    bgColor = 'rgba(108, 117, 125, 0.1)';
+    textColor = '#495057';
+    borderColor = 'rgba(108, 117, 125, 0.3)';
+  }
+
+  // Aplica cor ao select
+  selectElement.style.backgroundColor = bgColor;
+  selectElement.style.color = textColor;
+  selectElement.style.borderColor = borderColor;
+
+  // Aplica a mesma cor à célula recíproca
+  if (reciprocalCell) {
+    reciprocalCell.style.backgroundColor = bgColor;
+    reciprocalCell.style.color = textColor;
+    reciprocalCell.style.padding = '8px 12px';
+    reciprocalCell.style.borderRadius = '8px';
+    reciprocalCell.style.fontWeight = '600';
+  }
+}
+
+// -----------------------------------------------------------
+// Step 4: Gera formulário pareado específico para step4-comparacao.html
+// -----------------------------------------------------------
+function generatePairwiseFormStep4() {
+  const n = criteria.length;
+  const container = document.getElementById('comparisonContent');
+  let html = '<table class="matrix-table">';
+  html += '<thead><tr>';
+  html += '<th style="background: var(--pli-deep); color: white;">Critério 1</th>';
+  html += '<th style="background: var(--pli-deep); color: white;">Critério 2</th>';
+  html += '<th style="background: var(--pli-deep); color: white;">Importância (Escala AHP)</th>';
+  html += '</tr></thead><tbody>';
+  for (let i = 0; i < n - 1; i++) {
+    for (let j = i + 1; j < n; j++) {
+      html += '<tr>';
+      html += `<td><strong>${criteria[i]}</strong></td>`;
+      html += `<td><strong>${criteria[j]}</strong></td>`;
+      html += `<td>${createSelectInput(i, j)}</td>`;
+      html += '</tr>';
+    }
+  }
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+// -----------------------------------------------------------
+// Step 4: Calcula resultados e redireciona para step5
+// -----------------------------------------------------------
+function calculateResults() {
+  const n = criteria.length;
+  pairwiseMatrix = [];
+  for (let i = 0; i < n; i++) {
+    pairwiseMatrix[i] = [];
+    for (let j = 0; j < n; j++) {
+      if (i === j) {
+        pairwiseMatrix[i][j] = 1;
+      } else if (i < j) {
+        const selectId = 'pair_' + i + '_' + j;
+        const val = parseFloat(document.getElementById(selectId).value);
+        pairwiseMatrix[i][j] = val;
+      } else {
+        const selectId = 'pair_' + j + '_' + i;
+        const val = parseFloat(document.getElementById(selectId).value);
+        pairwiseMatrix[i][j] = 1 / val;
+      }
+    }
+  }
+  localStorage.setItem('ahp_pairwiseMatrix', JSON.stringify(pairwiseMatrix));
+  window.location.href = 'step5-resultados.html';
 }

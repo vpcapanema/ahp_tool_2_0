@@ -1,7 +1,7 @@
 (function () {
     "use strict";
 
-    var iconSpritePath = "./app_template_icon_sprite.svg";
+    var iconSpritePath = "templates_modelo/app_template_icon_sprite.svg";
 
     var spinnerMarkup = [
         '<svg class="app-template-inline-icon app-template-inline-icon--spinner" viewBox="0 0 20 20" aria-hidden="true">',
