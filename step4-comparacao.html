@@ -1,128 +1,31 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Etapa 4: Comparação Pareada - SIGMA AHP</title>
-    <link id="fontawesomeStylesheet" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" data-fallback-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="assets/govsp/css/top-padrao-govsp-v2.min.css">
-    <link rel="stylesheet" href="assets/govsp/css/rodape-padrao-govsp.min.css">
-    <link rel="stylesheet" href="templates_modelo/style_global_reset_base.css">
-    <link rel="stylesheet" href="templates_modelo/style_template_base_aplicacao.css">
-    <link rel="stylesheet" href="assets/css/components/style_navbar_public.css">
-    <link rel="stylesheet" href="assets/css/components/style_govsp_bridge_transitions.css">
-    <link rel="stylesheet" href="sigma-ahp.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Etapa 4: Revisão das comparações - SIGMA AHP</title>
+  <link id="fontawesomeStylesheet" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="templates_modelo/style_global_reset_base.css">
+  <link rel="stylesheet" href="templates_modelo/style_template_base_aplicacao.css">
+  <link rel="stylesheet" href="assets/css/components/style_navbar_public.css">
+  <link rel="stylesheet" href="sigma-ahp.css">
+  <link rel="stylesheet" href="pairwise-ui.css">
 </head>
 <body class="cadastro-page app-template-page ahp-app vw-page preview-sticky-footer">
-    <main class="sigma-main ahp-main">
-        <div class="cf-main ahp-shell">
-            <header class="vw-header">
-                <div class="vw-header__left">
-                    <nav class="vw-breadcrumb" aria-label="Breadcrumb">
-                        <a href="sigma-ahp.html">Início</a>
-                        <i class="fas fa-chevron-right app-template-inline-icon app-template-inline-icon--crumb" aria-hidden="true"></i>
-                        <a href="step3-metodo.html">Etapa 3</a>
-                        <i class="fas fa-chevron-right app-template-inline-icon app-template-inline-icon--crumb" aria-hidden="true"></i>
-                        <span>Etapa 4</span>
-                    </nav>
-                    <h1 class="vw-header__title"><i class="fas fa-scale-balanced app-template-title-icon" aria-hidden="true"></i>Etapa 4: Comparação Pareada</h1>
-                    <p class="vw-header__desc">Preencha a matriz ou o formulário assistido para refletir a importância relativa entre os critérios definidos nas etapas anteriores.</p>
-                </div>
-            </header>
-
-            <p class="cf-info-note"><i class="fas fa-info-circle app-template-inline-icon app-template-inline-icon--info" aria-hidden="true"></i>Os valores informados nesta etapa determinam diretamente os pesos finais e a razão de consistência da análise.</p>
-
-            <div class="progress-container"><div class="progress-bar"><div class="progress-step completed"><div class="progress-circle">1</div><span>Critérios</span></div><div class="progress-step completed"><div class="progress-circle">2</div><span>Nomes</span></div><div class="progress-step completed"><div class="progress-circle">3</div><span>Método</span></div><div class="progress-step active"><div class="progress-circle">4</div><span>Comparação</span></div><div class="progress-step"><div class="progress-circle">5</div><span>Resultados</span></div></div></div>
-
-            <section class="cf-section">
-                <div class="cf-section__header"><i class="fas fa-compass app-template-inline-icon app-template-inline-icon--section" aria-hidden="true"></i><span>Contexto da Etapa</span></div>
-                <div class="cf-section__body">
-                    <section class="ahp-section info-card"><div class="info-card-header"><i class="fas fa-info-circle"></i><h2>Sobre esta Etapa: Comparação Pareada</h2></div><div class="info-card-content"><p>Nesta etapa, você irá <strong>comparar os critérios par a par</strong> utilizando a Escala de Saaty para definir a importância relativa entre eles.</p><div class="info-highlights"><div class="info-item"><i class="fas fa-balance-scale"></i><div><strong>Comparação Relativa</strong><p>Compare dois critérios por vez, indicando qual é mais importante e em que intensidade.</p></div></div><div class="info-item"><i class="fas fa-sync-alt"></i><div><strong>Valores Recíprocos</strong><p>Os valores simétricos na matriz são calculados automaticamente. Exemplo: se A comparado a B = 3, então B comparado a A = 1/3.</p></div></div><div class="info-item"><i class="fas fa-check-circle"></i><div><strong>Índice de Consistência</strong><p>Após preencher, o sistema calculará o índice de consistência (CR). Valores abaixo de 0,10 indicam comparações consistentes.</p></div></div></div></div></section>
-                </div>
-            </section>
-
-            <section class="cf-section">
-                <div class="cf-section__header"><i class="fas fa-layer-group app-template-inline-icon app-template-inline-icon--section" aria-hidden="true"></i><span>Preenchimento da Matriz</span></div>
-                <div class="cf-section__body">
-                    <section class="ahp-section"><h2 class="step-title"><span class="step-number">4</span><span>Comparação Pareada</span></h2><div class="info-card info-card--spaced"><div class="info-card-header"><i class="fas fa-balance-scale"></i><h3>4.1 Escala de Intensidade de Importância</h3></div><div class="info-card-content"><p class="saaty-description">A <strong>Escala de Intensidade de Importância de Saaty</strong> é utilizada no método AHP para quantificar as preferências entre critérios durante a comparação pareada. Esta escala fundamental varia de 1 a 9, onde <strong>1 representa igual importância</strong> entre dois critérios e <strong>9 representa importância extrema</strong> de um critério sobre o outro. Os valores intermediários (3, 5, 7) representam níveis moderado, forte e muito forte de importância, respectivamente. Os valores recíprocos (1/3, 1/5, 1/7, 1/9) são utilizados quando o segundo critério é mais importante que o primeiro.</p><div class="saaty-image-container"><img src="img_folder/escala_intensidade_importancia_criterios_ahp.png" alt="Escala de Intensidade de Importância - Método AHP" class="saaty-image"></div></div></div><div class="info-card info-card--spaced"><div class="info-card-header"><i class="fas fa-table" id="methodIcon"></i><h3 id="methodCardTitle">4.2 Matriz de Comparação Pareada</h3></div><div class="info-card-content"><div id="instructions" class="instructions-container"><p id="instructionsText" class="instructions-text"></p></div><div id="comparisonContent" class="comparison-content"></div></div></div><div class="c-form-actions"><a href="step3-metodo.html" class="c-btn c-btn--secondary"><i class="fas fa-arrow-left c-btn__icon"></i>Voltar</a><button onclick="calculateResults()" class="c-btn c-btn--primary">Calcular Resultados<i class="fas fa-arrow-right c-btn__icon c-btn__icon--right"></i></button></div></section>
-                </div>
-            </section>
-        </div>
-    </main>
-    <script>
-        (function () {
-            function injectCabecalho() {
-                var anchor = document.getElementById('cabecalho-fragment-anchor');
-                if (!anchor) {
-                    return;
-                }
-
-                fetch('cabecalho_fragment.html', { cache: 'no-store' })
-                    .then(function (response) {
-                        if (!response.ok) {
-                            throw new Error('Falha ao carregar cabecalho_fragment.html');
-                        }
-                        return response.text();
-                    })
-                    .then(function (html) {
-                        var template = document.createElement('template');
-                        template.innerHTML = html;
-
-                        template.content.querySelectorAll('script').forEach(function (oldScript) {
-                            var newScript = document.createElement('script');
-
-                            Array.prototype.forEach.call(oldScript.attributes, function (attribute) {
-                                newScript.setAttribute(attribute.name, attribute.value);
-                            });
-
-                            newScript.textContent = oldScript.textContent;
-                            oldScript.parentNode.replaceChild(newScript, oldScript);
-                        });
-
-                        anchor.replaceWith(template.content);
-                    })
-                    .catch(function (error) {
-                        console.error(error);
-                    });
-            }
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', injectCabecalho);
-            } else {
-                injectCabecalho();
-            }
-        }());
-    </script><script src="assets/govsp/js/script-top-v2.js"></script><script src="templates_modelo/script_template_base_aplicacao.js"></script><script src="js/script.js"></script><script>
-        // Step 4 specific initialization
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedCriteria = localStorage.getItem('ahp_criteria');
-            const savedMethod = localStorage.getItem('ahp_chosenMethod');
-
-            if (!savedCriteria || !savedMethod) {
-                alert('Dados incompletos. Redirecionando...');
-                window.location.href = 'step1-criterios.html';
-                return;
-            }
-
-            criteria = JSON.parse(savedCriteria);
-            const method = savedMethod;
-
-            const methodCardTitle = document.getElementById('methodCardTitle');
-            const methodIcon = document.getElementById('methodIcon');
-            const instructionsText = document.getElementById('instructionsText');
-
-            if (method === 'matrix') {
-                methodIcon.className = 'fas fa-table';
-                methodCardTitle.textContent = '4.2 Matriz de Comparação Pareada';
-                instructionsText.innerHTML = '<strong>Como preencher a Matriz:</strong> Compare SEMPRE a linha com a coluna.Você pode preencher <strong>qualquer célula da matriz</strong> (exceto a diagonal principal). Ao selecionar um valor em uma célula, o sistema automaticamente ajustará a célula simétrica oposta com o valor recíproco oposto. Use a Escala de Saaty apresentada acima para suas comparações.';
-                generateDirectMatrixStep4();
-            } else {
-                methodIcon.className = 'fas fa-clipboard-list';
-                methodCardTitle.textContent = '4.2 Formulário de Comparação Pareada';
-                instructionsText.innerHTML = '<strong>Como preencher o Formulário:</strong> Para cada par de critérios apresentado, selecione a intensidade de importância usando a Escala de Saaty. Compare o <strong>Critério 1 com o Critério 2</strong>, indicando quanto o Critério 1 é mais ou menos importante que o Critério 2. O sistema irá processar automaticamente as comparações recíprocas.';
-                generatePairwiseFormStep4();
-            }
-        });
-    </script>
+  <main class="sigma-main ahp-main">
+    <div class="cf-main ahp-shell">
+      <header class="vw-header"><div class="vw-header__left">
+        <nav class="vw-breadcrumb" aria-label="Breadcrumb"><a href="sigma-ahp.html">Início</a><i class="fas fa-chevron-right app-template-inline-icon app-template-inline-icon--crumb" aria-hidden="true"></i><a href="step3-metodo.html">Etapa 3</a><i class="fas fa-chevron-right app-template-inline-icon app-template-inline-icon--crumb" aria-hidden="true"></i><span>Etapa 4</span></nav>
+        <h1 class="vw-header__title"><i class="fas fa-list-check app-template-title-icon" aria-hidden="true"></i>Etapa 4: Revisão das Comparações</h1>
+        <p class="vw-header__desc">Revise os julgamentos, confira a matriz recíproca e acompanhe a consistência antes de calcular os resultados.</p>
+      </div></header>
+      <p class="cf-info-note"><i class="fas fa-info-circle app-template-inline-icon app-template-inline-icon--info" aria-hidden="true"></i>Você pode alternar entre formulário e matriz sem perder os valores já informados.</p>
+      <div class="progress-container"><div class="progress-bar"><div class="progress-step completed"><div class="progress-circle">1</div><span>Critérios</span></div><div class="progress-step completed"><div class="progress-circle">2</div><span>Nomes</span></div><div class="progress-step completed"><div class="progress-circle">3</div><span>Comparação</span></div><div class="progress-step active"><div class="progress-circle">4</div><span>Revisão</span></div><div class="progress-step"><div class="progress-circle">5</div><span>Resultados</span></div></div></div>
+      <div data-ahp-pairwise data-mode="entry"></div>
+    </div>
+  </main>
+  <script src="js/navbar.js"></script>
+  <script src="js/pairwise-ui.js"></script>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(!localStorage.getItem('ahp_criteria')){alert('Dados incompletos. Redirecionando para o início.');window.location.href='step1-criterios.html';}});</script>
 </body>
 </html>

@@ -17,16 +17,15 @@
             height: clamp(96px, 14vh, 160px);
             flex: 0 0 auto;
         }
-        .vw-header.page-hero { display:block; padding:48px 32px; background:linear-gradient(135deg,#003b5a 0%,#1c3d59 60%,#116593 100%); border:0; border-radius:16px; box-shadow:0 12px 28px rgba(28,61,89,.22); position:relative; overflow:hidden; text-align:center; }
+        .ahp-main { max-width: var(--sigma-page-max-width, 1440px); }
+        .vw-header.page-hero { display:block; padding:var(--pli-space-2xl) var(--pli-space-xl); background:linear-gradient(135deg,var(--pli-deep) 0%,var(--pli-navy) 60%,var(--pli-blue) 100%); border:0; border-radius:var(--pli-radius-lg); box-shadow:var(--pli-shadow-hover); position:relative; overflow:hidden; text-align:center; }
         .vw-header.page-hero::before { content:""; position:absolute; inset:0; background:radial-gradient(ellipse at 70% 40%,rgba(62,194,110,.12) 0%,transparent 60%); pointer-events:none; }
-        .vw-header.page-hero .vw-header__left { position:relative; max-width:900px; margin:0 auto; }
-        .vw-header.page-hero .vw-breadcrumb { justify-content:center; color:rgba(255,255,255,.72); }
-        .vw-header.page-hero .vw-breadcrumb a { color:#3ec26e; }
-        .vw-header.page-hero .vw-header__title { color:#fff; text-align:center; font-size:clamp(2rem,4vw,3.25rem); }
-        .vw-header.page-hero .vw-header__desc { color:rgba(255,255,255,.82); text-align:center; max-width:760px; margin-left:auto; margin-right:auto; }
-        .vw-header.page-hero a { color:#fff; }
-        .page-hero__icon { width:64px; height:64px; background:rgba(255,255,255,.12); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:16px auto; color:#3ec26e; font-size:30px; }
-        .page-hero__badge { display:inline-flex; margin-top:12px; background:rgba(62,194,110,.18); border:1px solid rgba(62,194,110,.4); color:#3ec26e; border-radius:100px; padding:4px 14px; font-size:.9rem; font-weight:600; }
+        .vw-header.page-hero .vw-header__left { position:relative; max-width:900px; margin:0 auto; align-items:center; }
+        .vw-header.page-hero .vw-header__title { color:#fff; text-align:center; font-size:2.75rem; margin:0 0 var(--pli-space-sm); }
+        .vw-header.page-hero .vw-header__desc { color:rgba(255,255,255,.82); text-align:center; max-width:760px; margin-left:auto; margin-right:auto; font-size:var(--pli-fs-md); line-height:1.5; }
+        .vw-header.page-hero a { color:#fff!important; }
+        .page-hero__icon { width:64px; height:64px; background:rgba(255,255,255,.12); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto var(--pli-space-md); color:var(--pli-green); font-size:30px; }
+        .page-hero__badge { display:inline-flex; width:auto; align-self:center; margin-top:var(--pli-space-md); background:rgba(62,194,110,.18); border:1px solid rgba(62,194,110,.4); color:var(--pli-green); border-radius:100px; padding:4px 14px; font-size:var(--pli-fs-sm); font-weight:var(--pli-fw-semibold); }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -35,16 +34,8 @@
         <div class="cf-main ahp-shell">
             <header class="vw-header page-hero">
                 <div class="vw-header__left">
-                    <nav class="vw-breadcrumb" aria-label="Breadcrumb">
-                        <a href="sigma-ahp.html">Início</a>
-                        <svg class="app-template-inline-icon app-template-inline-icon--crumb" viewBox="0 0 16 16" aria-hidden="true">
-                            <use href="templates_modelo/app_template_icon_sprite.svg#app-icon-chevron-right"></use>
-                        </svg>
-                        <span>Calculadora AHP</span>
-                    </nav>
                     <div class="page-hero__icon" aria-hidden="true"><i class="fas fa-diagram-project"></i></div>
                     <h1 class="vw-header__title">
-                        <i class="fas fa-diagram-project app-template-title-icon" aria-hidden="true"></i>
                         Calculadora AHP
                     </h1>
 <p style="margin:.75rem 0"><a href="glossario.html" style="color:inherit;font:inherit;text-decoration:underline;text-underline-offset:3px">Glossário técnico-conceitual</a></p>
@@ -162,6 +153,7 @@
         </div>
         <div class="ahp-home-footer-buffer" aria-hidden="true"></div>
     </main>
+    <script src="js/navbar.js"></script>
     <script>
         (function () {
             function injectCabecalho() {
