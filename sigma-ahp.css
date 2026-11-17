@@ -42,6 +42,24 @@ body.ahp-app a {
   color: var(--pli-blue);
 }
 
+/* Hero SIGMA-PLI: preserva rigorosamente o visual de referencia dentro da
+   largura real de cada tela do fluxo AHP. */
+body.ahp-app .vw-header.page-hero {
+  width: 100%; max-width: 100%; position: static; left: auto; transform: none;
+  min-height: 180px; margin: 56.25px 0 30px; padding: 30px;
+  border: 0; border-radius: 10px;
+  background: linear-gradient(135deg,#003b5a 0%,#1c3d59 60%,#116593 100%);
+  box-shadow: 0 2.5px 15px rgba(0,0,0,.08);
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; text-align: center; box-sizing: border-box;
+}
+body.ahp-app .vw-header.page-hero .vw-header__left { width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; margin:0; }
+body.ahp-app .vw-header.page-hero .vw-header__title { display:flex; align-items:center; justify-content:center; gap:12px; margin:0 0 7px; color:#fff; text-align:center; font-family:"Segoe UI","Aptos","Helvetica Neue",Arial,sans-serif; font-size:30px; font-weight:700; line-height:1.55; }
+body.ahp-app .vw-header.page-hero .vw-header__desc { margin:0; color:#fff; text-align:center; font-family:"Segoe UI","Aptos","Helvetica Neue",Arial,sans-serif; font-size:16.8px; line-height:1.55; }
+body.ahp-app .page-hero__icon { display:inline-flex; align-items:center; justify-content:center; color:#3ec26e; font-size:30px; line-height:1; }
+body.ahp-app .page-hero__badge { display:block; margin-top:4px; padding:0; border:0; background:none; color:#fff; font:600 16.8px/1.55 "Segoe UI","Aptos","Helvetica Neue",Arial,sans-serif; letter-spacing:.42px; }
+@media(max-width:768px){body.ahp-app .vw-header.page-hero .vw-header__title{font-size:23px}}
+
 body.ahp-app.preview-sticky-footer .ahp-main {
   padding-top: 0;
   padding-bottom: 0;
