@@ -59,7 +59,9 @@
     var matrixWrap = host.querySelector("[data-matrix]");
     var pairWrap = host.querySelector("[data-pairs]");
     var continueButton = host.querySelector("[data-continue]");
-    var active = localStorage.getItem("ahp_chosenMethod") === "matrix" ? "matrix" : "form";
+    // A etapa 3 sempre abre no formulário. A escolha anterior não altera a
+    // experiência inicial; a matriz continua disponível como aba de consulta.
+    var active = host.dataset.mode === "method" ? "form" : (localStorage.getItem("ahp_chosenMethod") === "matrix" ? "matrix" : "form");
 
     function save() { localStorage.setItem("ahp_pairwiseMatrix", JSON.stringify(matrix)); }
     function updateMetrics() {
@@ -79,15 +81,29 @@
       var i = pair[0], j = pair[1];
       var sliderIndex = scale.reduce(function (best, value, position) { return Math.abs(value - matrix[i][j]) < Math.abs(scale[best] - matrix[i][j]) ? position : best; }, 0);
       var card = document.createElement("article");
-      card.className = "ahp-pair-card";
-      card.innerHTML = '<div class="ahp-pair-card__header"><span>Comparação ' + (index + 1) + ' de ' + pairs.length + '</span><span>Critério 1 × Critério 2</span></div><div class="ahp-pair-card__body"><div class="ahp-pair-criteria"><div class="ahp-pair-criterion">' + criteria[i] + '<small><br>critério 1</small></div><span class="ahp-pair-versus">VERSUS</span><div class="ahp-pair-criterion">' + criteria[j] + '<small><br>critério 2</small></div></div><input class="ahp-range" type="range" min="0" max="8" step="1" value="' + sliderIndex + '" aria-label="Importância de ' + criteria[i] + ' em relação a ' + criteria[j] + '"><div class="ahp-range-labels">' + labels.map(function (label) { return '<span>' + label + '</span>'; }).join("") + '</div><p class="ahp-choice" data-choice></p></div>';
+      card.className = "saaty-pair";
+      card.innerHTML = '<h3 class="saaty-pair-title">Comparação ' + (index + 1) + ' de ' + pairs.length + '</h3>' +
+        '<div class="saaty-widget"><div class="saaty-scale" role="group"><div class="saaty-arrow"></div>' +
+        labels.map(function (label, position) { var descriptions = ["Extremamente", "Bastante", "Médio", "Pouco", "Igual", "Pouco", "Médio", "Bastante", "Extremamente"]; return '<span class="saaty-tick" data-tick="' + position + '" style="left:' + (position * 12.5) + '%"><span class="saaty-tick-val">' + label + '</span><span class="saaty-tick-desc">' + descriptions[position] + '</span><span class="saaty-tick-mark"></span></span>'; }).join("") +
+        '<span class="saaty-handle" data-handle aria-hidden="true"></span><input class="saaty-range-input" type="range" min="0" max="8" step="1" value="' + sliderIndex + '" aria-label="Importância de ' + criteria[i] + ' em relação a ' + criteria[j] + '"></div>' +
+        '<div class="saaty-dir"><span>Mais importante</span><span>Mais importante</span></div></div>' +
+        '<div class="saaty-criteria"><div class="saaty-crit saaty-crit--left"><span class="saaty-crit__tag">A</span><span class="saaty-crit__name">' + criteria[i] + '</span></div><span class="saaty-vs">versus</span><div class="saaty-crit saaty-crit--right"><span class="saaty-crit__tag">B</span><span class="saaty-crit__name">' + criteria[j] + '</span></div></div>' +
+        '<div class="saaty-readout" data-choice></div><div class="saaty-reciprocal" data-reciprocal><span class="saaty-reciprocal__label">Valor recíproco automático</span><strong class="saaty-reciprocal__value" data-reciprocal-value></strong><span class="saaty-reciprocal__text" data-reciprocal-text></span></div>';
       var input = card.querySelector("input");
       var choice = card.querySelector("[data-choice]");
+      var handle = card.querySelector("[data-handle]");
+      var reciprocal = card.querySelector("[data-reciprocal]");
       function syncChoice() {
         var value = scale[Number(input.value)];
         matrix[i][j] = value; matrix[j][i] = 1 / value;
         var message = value === 1 ? '<strong>Igual importância</strong>' : value > 1 ? '<strong>' + criteria[i] + '</strong> é ' + formatValue(value) + ' vezes mais importante' : '<strong>' + criteria[j] + '</strong> é ' + formatValue(1 / value) + ' vezes mais importante';
-        choice.innerHTML = message + '<span class="ahp-opposite">Valor oposto: ' + formatValue(matrix[j][i]) + '</span>';
+        choice.className = 'saaty-readout ' + (value === 1 ? 'saaty-readout--eq' : value > 1 ? 'saaty-readout--pos' : 'saaty-readout--neg');
+        choice.innerHTML = message;
+        handle.style.left = (Number(input.value) * 12.5) + '%';
+        card.querySelectorAll('[data-tick]').forEach(function (tick) { tick.classList.toggle('is-selected', Number(tick.dataset.tick) === Number(input.value)); });
+        reciprocal.className = 'saaty-reciprocal ' + (value === 1 ? 'is-equal' : value > 1 ? 'is-positive' : 'is-negative');
+        reciprocal.querySelector('[data-reciprocal-value]').textContent = formatValue(matrix[j][i]);
+        reciprocal.querySelector('[data-reciprocal-text]').textContent = 'A comparação inversa de “' + criteria[j] + '” em relação a “' + criteria[i] + '” foi atualizada automaticamente.';
         save(); updateMatrix(); updateMetrics();
       }
       input.addEventListener("input", syncChoice); syncChoice(); pairWrap.appendChild(card);
