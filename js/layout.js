@@ -5,7 +5,7 @@
 
   function getPageName() {
     var parts = window.location.pathname.split("/");
-    return parts[parts.length - 1] || "sigma-ahp.html";
+    return (parts[parts.length - 1] || "sigma-ahp").replace(/\.html$/, "");
   }
 
   function isStepPage(pageName) {
@@ -16,7 +16,7 @@
     var pageName = getPageName();
 
     if (target === "home") {
-      return pageName === "sigma-ahp.html" ? " csch2-navbar__link--active" : "";
+      return pageName === "sigma-ahp" ? " csch2-navbar__link--active" : "";
     }
 
     if (target === "calculator") {
@@ -396,7 +396,7 @@
       '</section>',
       '<div class="csch2-navbar-band" data-csch2-root>',
       '  <div class="csch2-navbar__inner">',
-      '    <a href="sigma-ahp.html" class="csch2-navbar__brand" aria-label="SIGMA-PLI - Inicio">',
+      '    <a href="sigma-ahp" class="csch2-navbar__brand" aria-label="SIGMA-PLI - Inicio">',
       '      <span class="csch2-navbar__badge">SP</span>',
       '      <span class="csch2-navbar__brand-copy">',
       '        <span class="csch2-navbar__brand-title">SIGMA-PLI</span>',
@@ -409,13 +409,13 @@
       '    <div class="csch2-navbar__menu" data-csch2-menu>',
       '      <ul class="csch2-navbar__nav">',
       '        <li class="csch2-navbar__item">',
-      '          <a href="sigma-ahp.html" class="csch2-navbar__link' + getActiveClass("home") + '">',
+      '          <a href="sigma-ahp" class="csch2-navbar__link' + getActiveClass("home") + '">',
       '            <i class="fas fa-home" aria-hidden="true"></i>',
       '            <span>Home</span>',
       '          </a>',
       '        </li>',
       '        <li class="csch2-navbar__item">',
-      '          <a href="step1-criterios.html" class="csch2-navbar__link' + getActiveClass("calculator") + '">',
+      '          <a href="step1-criterios" class="csch2-navbar__link' + getActiveClass("calculator") + '">',
       '            <i class="fas fa-calculator" aria-hidden="true"></i>',
       '            <span>Calculadora AHP</span>',
       '          </a>',
@@ -435,7 +435,7 @@
       '        </li>',
       '      </ul>',
       '      <div class="csch2-navbar__actions">',
-      '        <a href="step1-criterios.html" class="csch2-navbar__btn">',
+      '        <a href="step1-criterios" class="csch2-navbar__btn">',
       '          <i class="fas fa-play" aria-hidden="true"></i>',
       '          <span>Nova analise</span>',
       '        </a>',

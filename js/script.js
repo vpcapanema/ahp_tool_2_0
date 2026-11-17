@@ -691,5 +691,5 @@ function calculateResults() {
     }
   }
   localStorage.setItem('ahp_pairwiseMatrix', JSON.stringify(pairwiseMatrix));
-  window.location.href = 'step5-resultados.html';
+  window.location.href = 'step5-resultados';
 }

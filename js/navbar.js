@@ -1,7 +1,21 @@
 (function () {
   "use strict";
 
+  function cleanPublicRoutes() {
+    document.querySelectorAll('a[href]').forEach(function (link) {
+      var rawHref = link.getAttribute('href');
+      if (!rawHref || /^(?:https?:|mailto:|tel:|#)/i.test(rawHref)) return;
+      link.setAttribute('href', rawHref.replace(/\.html(?=([?#]|$))/, ''));
+    });
+
+    if (/\.html$/.test(window.location.pathname)) {
+      var cleanPath = window.location.pathname.replace(/\.html$/, '');
+      window.history.replaceState(window.history.state, '', cleanPath + window.location.search + window.location.hash);
+    }
+  }
+
   function installNavbar() {
+    cleanPublicRoutes();
     if (document.querySelector(".sigma-cabecalho-fixo")) return;
 
     fetch("cabecalho_fragment.html", { cache: "no-store" })
