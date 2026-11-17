@@ -1,127 +1,23 @@
-(function () {
-  "use strict";
-
-  var scale = [9, 7, 5, 3, 1, 1 / 3, 1 / 5, 1 / 7, 1 / 9];
-  var labels = ["9", "7", "5", "3", "1", "1/3", "1/5", "1/7", "1/9"];
-
-  function formatValue(value) {
-    if (Math.abs(value - 1) < 0.0001) return "1";
-    if (value < 1) return "1/" + Math.round(1 / value);
-    return String(Math.round(value));
-  }
-
-  function tone(value) {
-    var intensity = value < 1 ? 1 / value : value;
-    if (intensity === 1) return "equal";
-    if (intensity <= 3) return "low";
-    if (intensity <= 5) return "mid";
-    if (intensity <= 7) return "high";
-    return "extreme";
-  }
-
-  function calculate(matrix) {
-    var n = matrix.length;
-    var weights = matrix.map(function (row) {
-      return Math.pow(row.reduce(function (product, value) { return product * value; }, 1), 1 / n);
-    });
-    var total = weights.reduce(function (sum, value) { return sum + value; }, 0);
-    weights = weights.map(function (value) { return value / total; });
-    var lambda = matrix.reduce(function (sum, row, i) {
-      var weighted = row.reduce(function (rowSum, value, j) { return rowSum + value * weights[j]; }, 0);
-      return sum + weighted / weights[i];
-    }, 0) / n;
-    var ci = n > 1 ? (lambda - n) / (n - 1) : 0;
-    var ri = [0, 0, 0, .58, .90, 1.12, 1.24, 1.32, 1.41, 1.45, 1.49, 1.51, 1.48, 1.56, 1.57];
-    var cr = n > 2 && ri[n] ? ci / ri[n] : 0;
-    return { lambda: lambda, ci: Math.max(0, ci), cr: Math.max(0, cr) };
-  }
-
-  function createMatrix(size) {
-    var saved = JSON.parse(localStorage.getItem("ahp_pairwiseMatrix") || "null");
-    if (Array.isArray(saved) && saved.length === size && saved.every(function (row) { return Array.isArray(row) && row.length === size; })) return saved;
-    return Array.from({ length: size }, function (_, i) {
-      return Array.from({ length: size }, function (_, j) { return i === j ? 1 : 1; });
-    });
-  }
-
-  function render(host) {
-    var criteria = JSON.parse(localStorage.getItem("ahp_criteria") || "[]");
-    if (criteria.length < 2) return;
-    var matrix = createMatrix(criteria.length);
-    var pairs = [];
-    criteria.forEach(function (_, i) { criteria.forEach(function (__, j) { if (i < j) pairs.push([i, j]); }); });
-
-    host.innerHTML = '<section class="ahp-step3-shell"><div class="ahp-step3-label"><span class="ahp-step3-index">3</span><span>Comparação pareada</span></div><div class="ahp-step3-body">' +
-      '<section class="ahp-subcard"><h2 class="ahp-subsection-title"><span class="ahp-subsection-num">3.1</span><span>Entenda a escala antes de comparar</span></h2><div class="ahp-subcard-body"><p class="ahp-guide-summary">Compare dois critérios por vez. O <strong>critério 1 é a referência</strong>. À esquerda, a régua favorece o critério 1; no centro, 1 representa igualdade; à direita, os valores recíprocos favorecem o critério 2.</p><p class="ahp-guide-title">Escala de Saaty</p><div class="ahp-scale-guide"><div class="ahp-scale-item" style="--tone:#66818f"><strong>Igual</strong><b>1</b><small>igual importância</small></div><div class="ahp-scale-item" style="--tone:#3c9b67"><strong>Pouco</strong><b>3</b><small>moderada</small></div><div class="ahp-scale-item" style="--tone:#d1a51a"><strong>Médio</strong><b>5</b><small>forte</small></div><div class="ahp-scale-item" style="--tone:#dd7a32"><strong>Bastante</strong><b>7</b><small>muito forte</small></div><div class="ahp-scale-item" style="--tone:#c84b4b"><strong>Extremamente</strong><b>9</b><small>extrema</small></div></div><p class="ahp-guide-inverse"><i class="fas fa-rotate" aria-hidden="true"></i><span>O valor oposto é aplicado automaticamente. Se o critério 1 vale 5 em relação ao critério 2, a comparação inversa passa a valer 1/5.</span></p></div></section>' +
-      '<section class="ahp-subcard"><h2 class="ahp-subsection-title"><span class="ahp-subsection-num">3.2</span><span>Comparação pareada</span></h2><div class="ahp-subcard-body"><p class="ahp-pairwise-intro">Ajuste os pares no formulário e acompanhe a matriz recíproca e os indicadores de consistência em tempo real. Procure manter RC inferior a 0,10.</p><div class="ahp-live-metrics" data-metrics></div><div class="ahp-pair-tabs" role="tablist"><button type="button" data-tab="form" role="tab">Formulário de comparação pareada</button><button type="button" data-tab="matrix" role="tab">Matriz de comparação pareada</button></div><div class="ahp-panel" data-panel="form"><div data-pairs></div></div><div class="ahp-panel" data-panel="matrix"><p class="ahp-pairwise-intro">Cada valor compara o critério da linha com o da coluna. A diagonal é 1 e as duas metades são recíprocas. Faça os ajustes na aba formulário.</p><div class="ahp-matrix-wrap" data-matrix></div></div><div class="ahp-pair-actions"><a class="c-btn c-btn--secondary" href="step2-nomes"><i class="fas fa-arrow-left c-btn__icon"></i>Voltar</a><button type="button" class="c-btn c-btn--primary" data-continue></button></div></div></section></div></section>';
-
-    var metrics = host.querySelector("[data-metrics]");
-    var matrixWrap = host.querySelector("[data-matrix]");
-    var pairWrap = host.querySelector("[data-pairs]");
-    var continueButton = host.querySelector("[data-continue]");
-    // A etapa 3 sempre abre no formulário. A escolha anterior não altera a
-    // experiência inicial; a matriz continua disponível como aba de consulta.
-    var active = host.dataset.mode === "method" ? "form" : (localStorage.getItem("ahp_chosenMethod") === "matrix" ? "matrix" : "form");
-
-    function save() { localStorage.setItem("ahp_pairwiseMatrix", JSON.stringify(matrix)); }
-    function updateMetrics() {
-      var result = calculate(matrix);
-      var statusClass = result.cr === 0 ? "" : result.cr < .1 ? " is-ok" : " is-bad";
-      var status = result.cr === 0 ? "RC zero" : result.cr < .1 ? "Consistência adequada" : "Revise as comparações";
-      metrics.innerHTML = '<div class="ahp-metric-card"><div class="ahp-metric-card__label">Lambda máximo (λmax)</div><div class="ahp-metric-card__value">' + result.lambda.toFixed(4) + '</div></div><div class="ahp-metric-card"><div class="ahp-metric-card__label">Índice de consistência (IC)</div><div class="ahp-metric-card__value">' + result.ci.toFixed(4) + '</div></div><div class="ahp-metric-card' + statusClass + '"><div class="ahp-metric-card__label">Razão de consistência (RC)</div><div class="ahp-metric-card__value">' + result.cr.toFixed(4) + '</div><div class="ahp-metric-card__sub">' + status + '</div></div>';
-    }
-    function updateMatrix() {
-      var html = '<table class="ahp-matrix"><thead><tr><th>Critério</th>' + criteria.map(function (criterion) { return '<th>' + criterion + '</th>'; }).join("") + '</tr></thead><tbody>';
-      criteria.forEach(function (criterion, i) {
-        html += '<tr><td>' + criterion + '</td>' + matrix[i].map(function (value) { return '<td data-tone="' + tone(value) + '">' + formatValue(value) + '</td>'; }).join("") + '</tr>';
-      });
-      matrixWrap.innerHTML = html + '</tbody></table>';
-    }
-    function updatePair(pair, index) {
-      var i = pair[0], j = pair[1];
-      var sliderIndex = scale.reduce(function (best, value, position) { return Math.abs(value - matrix[i][j]) < Math.abs(scale[best] - matrix[i][j]) ? position : best; }, 0);
-      var card = document.createElement("article");
-      card.className = "saaty-pair";
-      card.innerHTML = '<h3 class="saaty-pair-title">Comparação ' + (index + 1) + ' de ' + pairs.length + '</h3>' +
-        '<div class="saaty-widget"><div class="saaty-scale" role="group"><div class="saaty-arrow"></div>' +
-        labels.map(function (label, position) { var descriptions = ["Extremamente", "Bastante", "Médio", "Pouco", "Igual", "Pouco", "Médio", "Bastante", "Extremamente"]; return '<span class="saaty-tick" data-tick="' + position + '" style="left:' + (position * 12.5) + '%"><span class="saaty-tick-val">' + label + '</span><span class="saaty-tick-desc">' + descriptions[position] + '</span><span class="saaty-tick-mark"></span></span>'; }).join("") +
-        '<span class="saaty-handle" data-handle aria-hidden="true"></span><input class="saaty-range-input" type="range" min="0" max="8" step="1" value="' + sliderIndex + '" aria-label="Importância de ' + criteria[i] + ' em relação a ' + criteria[j] + '"></div>' +
-        '<div class="saaty-dir"><span>Mais importante</span><span>Mais importante</span></div></div>' +
-        '<div class="saaty-criteria"><div class="saaty-crit saaty-crit--left"><span class="saaty-crit__tag">A</span><span class="saaty-crit__name">' + criteria[i] + '</span></div><span class="saaty-vs">versus</span><div class="saaty-crit saaty-crit--right"><span class="saaty-crit__tag">B</span><span class="saaty-crit__name">' + criteria[j] + '</span></div></div>' +
-        '<div class="saaty-readout" data-choice></div><div class="saaty-reciprocal" data-reciprocal><span class="saaty-reciprocal__label">Valor recíproco automático</span><strong class="saaty-reciprocal__value" data-reciprocal-value></strong><span class="saaty-reciprocal__text" data-reciprocal-text></span></div>';
-      var input = card.querySelector("input");
-      var choice = card.querySelector("[data-choice]");
-      var handle = card.querySelector("[data-handle]");
-      var reciprocal = card.querySelector("[data-reciprocal]");
-      function syncChoice() {
-        var value = scale[Number(input.value)];
-        matrix[i][j] = value; matrix[j][i] = 1 / value;
-        var message = value === 1 ? '<strong>Igual importância</strong>' : value > 1 ? '<strong>' + criteria[i] + '</strong> é ' + formatValue(value) + ' vezes mais importante' : '<strong>' + criteria[j] + '</strong> é ' + formatValue(1 / value) + ' vezes mais importante';
-        choice.className = 'saaty-readout ' + (value === 1 ? 'saaty-readout--eq' : value > 1 ? 'saaty-readout--pos' : 'saaty-readout--neg');
-        choice.innerHTML = message;
-        handle.style.left = (Number(input.value) * 12.5) + '%';
-        card.querySelectorAll('[data-tick]').forEach(function (tick) { tick.classList.toggle('is-selected', Number(tick.dataset.tick) === Number(input.value)); });
-        reciprocal.className = 'saaty-reciprocal ' + (value === 1 ? 'is-equal' : value > 1 ? 'is-positive' : 'is-negative');
-        reciprocal.querySelector('[data-reciprocal-value]').textContent = formatValue(matrix[j][i]);
-        reciprocal.querySelector('[data-reciprocal-text]').textContent = 'A comparação inversa de “' + criteria[j] + '” em relação a “' + criteria[i] + '” foi atualizada automaticamente.';
-        save(); updateMatrix(); updateMetrics();
-      }
-      input.addEventListener("input", syncChoice); syncChoice(); pairWrap.appendChild(card);
-    }
-    function setTab(tab) {
-      active = tab;
-      host.querySelectorAll("[data-tab]").forEach(function (button) { var selected = button.dataset.tab === tab; button.classList.toggle("is-active", selected); button.setAttribute("aria-selected", String(selected)); });
-      host.querySelectorAll("[data-panel]").forEach(function (panel) { panel.hidden = panel.dataset.panel !== tab; });
-      continueButton.innerHTML = (host.dataset.mode === "method" ? "Usar " : "Concluir com ") + (tab === "matrix" ? "matriz" : "formulário") + '<i class="fas fa-arrow-right c-btn__icon c-btn__icon--right"></i>';
-    }
-    pairs.forEach(updatePair); updateMatrix(); updateMetrics();
-    host.querySelectorAll("[data-tab]").forEach(function (button) { button.addEventListener("click", function () { setTab(button.dataset.tab); }); });
-    continueButton.addEventListener("click", function () {
-      localStorage.setItem("ahp_chosenMethod", active === "matrix" ? "matrix" : "form"); save();
-      window.location.href = host.dataset.mode === "method" ? "step4-comparacao" : "step5-resultados";
-    });
-    setTab(active);
-  }
-
-  document.addEventListener("DOMContentLoaded", function () { document.querySelectorAll("[data-ahp-pairwise]").forEach(render); });
+(function(){"use strict";
+var S=[{v:9,l:"9",d:"Extremamente",c:"#0d3b66"},{v:7,l:"7",d:"Bastante",c:"#2f6fad"},{v:5,l:"5",d:"Médio",c:"#75a7d2"},{v:3,l:"3",d:"Pouco",c:"#c0d8eb"},{v:1,l:"1",d:"Igual",c:"#f5f5f5"},{v:1/3,l:"1/3",d:"Pouco",c:"#f0c2bd"},{v:1/5,l:"1/5",d:"Médio",c:"#df786e"},{v:1/7,l:"1/7",d:"Bastante",c:"#c0392b"},{v:1/9,l:"1/9",d:"Extremamente",c:"#7b1a1a"}],CENTER=4;
+function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function fmt(v){if(Math.abs(v-1)<.0001)return"1";return v<1?"1/"+Math.round(1/v):String(Math.round(v))}
+function near(v){return S.reduce(function(b,s,i){return Math.abs(Math.log(s.v)-Math.log(v))<Math.abs(Math.log(S[b].v)-Math.log(v))?i:b},CENTER)}
+function tone(v){var x=v<1?1/v:v;return x===1?"equal":x<=3?"low":x<=5?"mid":x<=7?"high":"extreme"}
+function calc(m){var n=m.length,w=m.map(function(r){return Math.pow(r.reduce(function(p,v){return p*v},1),1/n)}),t=w.reduce(function(a,b){return a+b},0);w=w.map(function(v){return v/t});var l=m.reduce(function(a,r,i){return a+r.reduce(function(s,v,j){return s+v*w[j]},0)/w[i]},0)/n,ci=n>1?(l-n)/(n-1):0,ri=[0,0,0,.58,.90,1.12,1.24,1.32,1.41,1.45,1.49,1.51,1.48,1.56,1.57];return{lambda:l,ci:Math.max(0,ci),cr:Math.max(0,n>2&&ri[n]?ci/ri[n]:0)}}
+function matrix(n){var x;try{x=JSON.parse(localStorage.getItem("ahp_pairwiseMatrix")||"null")}catch(e){x=null}if(Array.isArray(x)&&x.length===n&&x.every(function(r){return Array.isArray(r)&&r.length===n}))return x;return Array.from({length:n},function(_,i){return Array.from({length:n},function(_,j){return i===j?1:1})})}
+function icon(name){var t=String(name).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase(),r=[[/logistic|transporte|gargalo|conectividade/,"fa-truck-fast"],[/seguranca|vitima|acidente/,"fa-shield-halved"],[/climatic|emiss|carbono/,"fa-earth-americas"],[/ambiental|biodiversidade|sustentabilidade/,"fa-leaf"],[/risco|incerteza|ameaca/,"fa-triangle-exclamation"],[/governanca|institucional/,"fa-building-columns"],[/prazo|tempo|cronograma/,"fa-clock"],[/financeir|fiscal|custo|investimento/,"fa-coins"],[/economic|produtiv|emprego|renda/,"fa-chart-line"],[/social|equidade|inclusao/,"fa-people-group"],[/territori|espacial|localizacao/,"fa-map-location-dot"],[/rodovia|rodoviari|viari/,"fa-road"],[/qualidade|eficiencia|desempenho/,"fa-gauge-high"]].find(function(x){return x[0].test(t)});return r?r[1]:"fa-list-check"}
+function render(host){var C=JSON.parse(localStorage.getItem("ahp_criteria")||"[]");if(C.length<2)return;var M=matrix(C.length),P=[];C.forEach(function(_,i){C.forEach(function(__,j){if(i<j)P.push([i,j])})});
+host.innerHTML='<section class="ahp-step3-shell"><div class="ahp-step3-label"><span class="ahp-step3-index">3</span><span>Comparação pareada</span></div><div class="ahp-step3-body"><section class="ahp-subcard"><h2 class="ahp-subsection-title"><span class="ahp-subsection-num">3.1</span><span>Entenda a escala antes de comparar</span></h2><div class="ahp-subcard-body"><p class="ahp-guide-summary">Compare dois critérios por vez, considerando o objetivo da análise. O <strong>critério 1 é a referência</strong>, identificada no título de cada card. A <strong>escala de Saaty</strong> registra a intensidade da preferência do critério 1 em relação ao critério 2.</p><p class="ahp-guide-title">Escala de Saaty: o que cada nome da barra significa</p><div class="ahp-scale-guide"><div class="ahp-scale-item" style="--tone:#94a3b8"><strong>Igual</strong><b>1</b><small>igual importância</small></div><div class="ahp-scale-item" style="--tone:#a9cdec"><strong>Pouco</strong><b>3</b><small>importância moderada</small></div><div class="ahp-scale-item" style="--tone:#5b9bd5"><strong>Médio</strong><b>5</b><small>importância forte</small></div><div class="ahp-scale-item" style="--tone:#2f6fad"><strong>Bastante</strong><b>7</b><small>importância muito forte</small></div><div class="ahp-scale-item" style="--tone:#0d3b66"><strong>Extremamente</strong><b>9</b><small>importância extrema</small></div></div><p class="ahp-guide-inverse"><i class="fas fa-rotate"></i><span>À <strong>esquerda do centro</strong>, a barra favorece o <strong>critério 1</strong>. No centro, <strong>1 significa igual importância</strong>. À <strong>direita</strong>, os valores recíprocos favorecem o <strong>critério 2</strong>.</span></p></div></section><section class="ahp-subcard"><h2 class="ahp-subsection-title"><span class="ahp-subsection-num">3.2</span><span>Comparação pareada</span></h2><div class="ahp-subcard-body"><p class="ahp-pairwise-intro">Para cada par, indique qual critério é mais importante e com que intensidade. Cada ajuste preenche automaticamente o valor inverso e atualiza os indicadores de consistência.</p><h3 class="ahp-metrics-title">Indicadores instantâneos de consistência AHP</h3><div class="ahp-live-metrics" data-metrics></div><div class="ahp-pair-tabs" role="tablist"><button type="button" data-tab="form" role="tab">Formulário de comparação pareada</button><button type="button" data-tab="matrix" role="tab">Matriz de comparação pareada</button></div><p class="ahp-pairwise-intro ahp-matrix-legend">Na matriz, cada valor compara o critério da linha com o da coluna. A diagonal é 1; as duas metades são recíprocas. A matriz é somente leitura.</p><div class="ahp-panel" data-panel="form"><div class="saaty-form" data-pairs></div></div><div class="ahp-panel" data-panel="matrix"><div class="ahp-matrix-wrap" data-matrix></div></div><div class="ahp-pair-actions"><a class="c-btn c-btn--secondary" href="step2-nomes"><i class="fas fa-arrow-left c-btn__icon"></i>Voltar</a><button type="button" class="c-btn c-btn--primary" data-continue></button></div></div></section></div></section>';
+var metrics=host.querySelector("[data-metrics]"),mw=host.querySelector("[data-matrix]"),wrap=host.querySelector("[data-pairs]"),next=host.querySelector("[data-continue]"),active=host.dataset.mode==="method"?"form":localStorage.getItem("ahp_chosenMethod")==="matrix"?"matrix":"form";
+function save(){localStorage.setItem("ahp_pairwiseMatrix",JSON.stringify(M))}
+function updateMetrics(){var r=calc(M),cl=r.cr===0?"":r.cr<.1?" is-ok":" is-bad",st=r.cr===0?"RC zero":r.cr<.1?"Adequada para envio":"Revise as comparações";metrics.innerHTML='<div class="ahp-metric-card"><div class="ahp-metric-card__label">Lambda máximo (λmax)</div><div class="ahp-metric-card__value">'+r.lambda.toFixed(4)+'</div></div><div class="ahp-metric-card"><div class="ahp-metric-card__label">Índice de consistência (IC)</div><div class="ahp-metric-card__value">'+r.ci.toFixed(4)+'</div></div><div class="ahp-metric-card'+cl+'"><div class="ahp-metric-card__label">Razão de consistência (RC)</div><div class="ahp-metric-card__value">'+r.cr.toFixed(4)+'</div><div class="ahp-metric-card__sub">'+st+'</div></div>'}
+function updateMatrix(){var h='<table class="ahp-matrix"><thead><tr><th>Critério</th>'+C.map(function(c){return'<th>'+esc(c)+'</th>'}).join("")+'</tr></thead><tbody>';C.forEach(function(c,i){h+='<tr><td>'+esc(c)+'</td>'+M[i].map(function(v){return'<td data-tone="'+tone(v)+'">'+fmt(v)+'</td>'}).join("")+'</tr>'});mw.innerHTML=h+'</tbody></table>'}
+function crit(i,j){return'<div class="saaty-criteria"><span class="saaty-crit saaty-crit--left"><span class="saaty-crit__tag">1</span><span class="saaty-crit__name"><i class="fas '+icon(C[i])+' saaty-crit__icon"></i><span>'+esc(C[i])+'</span></span></span><span class="saaty-vs">vs</span><span class="saaty-crit saaty-crit--right"><span class="saaty-crit__tag">2</span><span class="saaty-crit__name"><i class="fas '+icon(C[j])+' saaty-crit__icon"></i><span>'+esc(C[j])+'</span></span></span></div>'}
+function build(pair){var i=pair[0],j=pair[1],initial=near(M[i][j]),card=document.createElement("article");card.className="saaty-pair";card.dataset.i=i;card.dataset.j=j;card.innerHTML='<h3 class="saaty-pair-title">Critério referência: '+esc(C[i])+'</h3>'+crit(i,j)+'<div class="saaty-widget"><div class="saaty-scale" tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="8" aria-valuenow="'+initial+'" aria-label="Comparação entre '+esc(C[i])+' e '+esc(C[j])+'"><div class="saaty-arrow"></div><div class="saaty-rail">'+S.map(function(s,k){return'<div class="saaty-tick" data-tick="'+k+'" style="left:'+(k*12.5)+'%"><span class="saaty-tick-val">'+s.l+'</span><span class="saaty-tick-desc">'+s.d+'</span><span class="saaty-tick-mark"></span></div>'}).join("")+'<div class="saaty-handle"></div></div></div><div class="saaty-dir"><span><i class="fas fa-arrow-left"></i> Mais importante</span><span>Menos importante <i class="fas fa-arrow-right"></i></span></div></div><div class="saaty-readout" data-choice></div><div class="saaty-reciprocal" data-reciprocal aria-live="polite"><span class="saaty-reciprocal__label"><i class="fas fa-rotate"></i> Valor oposto aplicado automaticamente</span><span class="saaty-reciprocal__value" data-rv></span><span class="saaty-reciprocal__text" data-rt></span></div>';
+var se=card.querySelector(".saaty-scale"),rail=card.querySelector(".saaty-rail"),handle=card.querySelector(".saaty-handle"),read=card.querySelector("[data-choice]"),rec=card.querySelector("[data-reciprocal]"),drag=false,timer;
+function apply(k,user){k=Math.max(0,Math.min(8,k));var s=S[k],v=s.v;M[i][j]=v;M[j][i]=1/v;var msg=k===CENTER?'“'+C[i]+'” tem igual importância que “'+C[j]+'” (1)':v>1?'“'+C[i]+'” é '+s.d.toLowerCase()+' mais importante que “'+C[j]+'” ('+s.l+')':'“'+C[i]+'” é '+s.d.toLowerCase()+' menos importante que “'+C[j]+'” ('+s.l+')';se.setAttribute("aria-valuenow",k);se.setAttribute("aria-valuetext",msg);handle.style.left=(k*12.5)+"%";handle.style.backgroundColor=s.c;card.querySelectorAll(".saaty-tick").forEach(function(t,p){var on=p===k;t.classList.toggle("is-selected",on);if(on){t.style.setProperty("--tick-cor",s.c);t.style.setProperty("--tick-halo",s.c+"59");t.style.setProperty("--tick-texto",k>=3&&k<=5?"#0d3b66":"#fff")}});read.textContent=msg;read.className="saaty-readout saaty-readout--"+(k===CENTER?"eq":v>1?"pos":"neg");card.classList.toggle("saaty-pair--filled",k!==CENTER);card.classList.toggle("saaty-pair--equal",k===CENTER);rec.className="saaty-reciprocal "+(k===CENTER?"is-equal":v>1?"is-negative":"is-positive");rec.querySelector("[data-rv]").textContent=fmt(1/v);rec.querySelector("[data-rt]").textContent=C[j]+" em relação a "+C[i]+" = "+fmt(1/v);void rec.offsetWidth;rec.classList.add("is-updated");if(user){card.classList.remove("is-auto-validated");card.classList.add("is-auto-editing");clearTimeout(timer);timer=setTimeout(function(){card.classList.remove("is-auto-editing");card.classList.add("is-auto-validated")},3000)}save();updateMatrix();updateMetrics()}
+function ix(x){var b=rail.getBoundingClientRect();return Math.round(Math.max(0,Math.min(1,(x-b.left)/b.width))*8)}function px(e){return e.touches&&e.touches.length?e.touches[0].clientX:e.clientX}function down(e){drag=true;card.classList.add("saaty-pair--touched");se.classList.add("saaty-scale--active");apply(ix(px(e)),true);e.preventDefault()}function move(e){if(!drag)return;apply(ix(px(e)),true);e.preventDefault()}function up(){drag=false;se.classList.remove("saaty-scale--active")}se.addEventListener("mousedown",down);document.addEventListener("mousemove",move);document.addEventListener("mouseup",up);se.addEventListener("touchstart",down,{passive:false});document.addEventListener("touchmove",move,{passive:false});document.addEventListener("touchend",up);se.addEventListener("keydown",function(e){var k=Number(se.getAttribute("aria-valuenow"));if(e.key==="ArrowLeft"||e.key==="ArrowDown"){apply(k-1,true);e.preventDefault()}else if(e.key==="ArrowRight"||e.key==="ArrowUp"){apply(k+1,true);e.preventDefault()}else if(e.key==="Home"){apply(0,true);e.preventDefault()}else if(e.key==="End"){apply(8,true);e.preventDefault()}});wrap.appendChild(card);apply(initial,false)}
+function tab(t){active=t;host.querySelectorAll("[data-tab]").forEach(function(b){var on=b.dataset.tab===t;b.classList.toggle("is-active",on);b.setAttribute("aria-selected",String(on));b.tabIndex=on?0:-1});host.querySelectorAll("[data-panel]").forEach(function(p){p.hidden=p.dataset.panel!==t});host.querySelector(".ahp-matrix-legend").hidden=t!=="matrix";next.innerHTML=(host.dataset.mode==="method"?"Usar ":"Concluir com ")+(t==="matrix"?"matriz":"formulário")+'<i class="fas fa-arrow-right c-btn__icon c-btn__icon--right"></i>'}P.forEach(build);updateMatrix();updateMetrics();host.querySelectorAll("[data-tab]").forEach(function(b){b.addEventListener("click",function(){tab(b.dataset.tab)})});next.addEventListener("click",function(){localStorage.setItem("ahp_chosenMethod",active==="matrix"?"matrix":"form");save();location.href=host.dataset.mode==="method"?"step4-comparacao":"step5-resultados"});tab(active)}
+document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("[data-ahp-pairwise]").forEach(render)});
 }());
