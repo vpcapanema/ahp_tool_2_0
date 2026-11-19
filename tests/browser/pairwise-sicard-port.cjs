@@ -67,9 +67,25 @@ const assert = require('node:assert/strict');
       sizes.lead >= sizes.step && sizes.step > sizes.detail);
     await page.keyboard.press('Escape');
     const floating = page.locator('[data-rc-floating]');
+    assert.equal(await floating.evaluate(el => getComputedStyle(el).position), 'fixed',
+      'Floating RC card is anchored to the viewport');
+    const viewportPositionBeforeScroll = await floating.evaluate(el => el.getBoundingClientRect().top);
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(100);
+    assert.ok(Math.abs(await floating.evaluate(el => el.getBoundingClientRect().top) - viewportPositionBeforeScroll) < 1,
+      'Floating RC card follows the viewport while the page scrolls');
+    await floating.dispatchEvent('pointerdown', { clientX: 1000, clientY: 200, pointerId: 1, isPrimary: true });
+    await page.evaluate(() => {
+      document.dispatchEvent(new PointerEvent('pointermove', { clientX: -2000, clientY: -2000, pointerId: 1, isPrimary: true }));
+      document.dispatchEvent(new PointerEvent('pointerup', { pointerId: 1, isPrimary: true }));
+    });
+    assert.equal(await floating.evaluate(el => {
+      const rect = el.getBoundingClientRect();
+      return rect.left >= 7 && rect.top >= 7 && rect.right <= innerWidth - 7 && rect.bottom <= innerHeight - 7;
+    }), true, 'Floating RC card remains inside the viewport after dragging');
     await floating.focus();
     const transformBefore = await floating.evaluate(el => el.style.transform);
-    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.press('ArrowRight');
     assert.notEqual(await floating.evaluate(el => el.style.transform), transformBefore,
       'Floating RC card moves by keyboard');
     const resize = page.locator('[data-rc-resize]');

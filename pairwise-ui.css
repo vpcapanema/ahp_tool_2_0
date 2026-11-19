@@ -58,7 +58,7 @@ body.ahp-step3-page .ahp-step3-body{background:#fff}
 /* Consistência visual e ajuda contextual transplantadas do formulário público SICARD. */
 .ahp-app .ahp-main p,.ahp-app .ahp-main li{text-align:justify;text-justify:inter-word;hyphens:auto}
 .ahp-pairs-quadrant{position:relative;min-width:0;padding-top:8.25rem}
-.ahp-rc-sidebar{--rc-base-width:12rem;--rc-scale:.9;position:absolute;top:.25rem;right:0;z-index:20;width:calc(var(--rc-base-width)*var(--rc-scale));border-radius:9px;background:#fff;box-shadow:0 4px 18px rgba(0,34,58,.3);cursor:grab;touch-action:none}
+.ahp-rc-sidebar{--rc-base-width:12rem;--rc-scale:.9;position:fixed;top:8rem;right:1rem;z-index:1000;width:calc(var(--rc-base-width)*var(--rc-scale));border-radius:9px;background:#fff;box-shadow:0 4px 18px rgba(0,34,58,.3);cursor:grab;touch-action:none}
 .ahp-rc-sidebar .ahp-metric-card{box-sizing:border-box;width:var(--rc-base-width);min-height:7rem;margin:0;zoom:var(--rc-scale)}
 .ahp-rc-sidebar:has(.ahp-consistency-help-button:not([hidden])) .ahp-metric-card{padding-bottom:3rem}
 .ahp-consistency-help-button{position:absolute;left:50%;bottom:.55rem;z-index:2;display:grid;place-items:center;width:2rem;height:2rem;padding:0;color:#fff;background:#075477;border:2px solid #83d9a5;border-radius:50%;box-shadow:0 2px 7px rgba(0,34,58,.28);cursor:pointer;transform:translateX(-50%)}
