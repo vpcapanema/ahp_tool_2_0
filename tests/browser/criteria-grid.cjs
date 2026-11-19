@@ -38,10 +38,10 @@ server.listen(0, '127.0.0.1', async () => {
       }));
       if (layout.length !== count) throw new Error(`Esperados ${count} campos; encontrados ${layout.length}.`);
       const columns = [...new Set(layout.map((item) => item.x))];
-      if (count >= 3 && columns.length !== 3) throw new Error(`O grid de ${count} campos não formou três colunas.`);
+      if (count >= 2 && columns.length !== 2) throw new Error(`O grid de ${count} campos não formou duas colunas.`);
       layout.forEach((item, index) => {
         if (item.inputWidth > item.width + 1) throw new Error(`O input ${index + 1} excedeu a própria coluna.`);
-        if (index >= 3 && item.x !== layout[index % 3].x) throw new Error(`Há lacuna intermediária antes do campo ${index + 1}.`);
+        if (index >= 2 && item.x !== layout[index % 2].x) throw new Error(`Há lacuna intermediária antes do campo ${index + 1}.`);
       });
     }
     console.log('criteria-grid: ok');
