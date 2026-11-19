@@ -47,8 +47,12 @@
   function parseXLSXMatrix(arrayBuffer) {
     if (!window.XLSX) throw new Error('O leitor XLSX não pôde ser carregado. Recarregue a página e tente novamente.');
     const workbook = window.XLSX.read(arrayBuffer, { type: 'array', cellFormula: true });
-    const worksheet = workbook.Sheets['Matriz AHP'];
-    if (!worksheet) throw new Error('A planilha deve conter uma aba chamada “Matriz AHP”.');
+    const expectedSheets = ['1. Instruções', '2. Matriz AHP'];
+    if (workbook.SheetNames[0] !== expectedSheets[0] || workbook.SheetNames[1] !== expectedSheets[1]) {
+      throw new Error('As duas primeiras abas devem ser, nesta ordem, “1. Instruções” e “2. Matriz AHP”. Use o modelo XLSX disponibilizado.');
+    }
+    const worksheet = workbook.Sheets['2. Matriz AHP'];
+    if (!worksheet) throw new Error('A planilha deve conter a segunda aba chamada “2. Matriz AHP”.');
     const rows = window.XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: true, defval: null });
     if (String(rows[0]?.[0] || '').trim().toLocaleLowerCase('pt-BR') !== 'critério') {
       throw new Error('A célula A1 deve conter “Critério”. Use o modelo XLSX disponibilizado.');
@@ -81,7 +85,7 @@
       jsonButton.innerHTML = '<i class="fas fa-file-excel"></i> Baixar Modelo XLSX';
     }
     const formatItems = document.querySelectorAll('.info-list li');
-    if (formatItems[1]) formatItems[1].textContent = 'XLSX: aba “Matriz AHP” no formato exato do modelo, com nomes na primeira linha e coluna';
+    if (formatItems[1]) formatItems[1].textContent = 'XLSX: preencha a segunda aba, “2. Matriz AHP”, sem alterar a ordem ou o nome das abas';
     const input = document.getElementById('matrix-file-input');
     if (input) {
       input.accept = '.csv,.xlsx';

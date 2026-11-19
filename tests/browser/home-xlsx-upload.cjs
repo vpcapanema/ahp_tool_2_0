@@ -46,13 +46,20 @@ const server = http.createServer((request, response) => {
 
     await page.locator('#matrix-file-input').setInputFiles(path.join(root, 'modelo_matriz_ahp.xlsx'));
     await page.waitForSelector('.notification-success');
+    const workbookOrder = await page.evaluate(async (url) => {
+      const buffer = await (await fetch(url)).arrayBuffer();
+      return XLSX.read(buffer, { type: 'array' }).SheetNames;
+    }, `${base}/modelo_matriz_ahp.xlsx`);
+    if (workbookOrder[0] !== '1. Instruções' || workbookOrder[1] !== '2. Matriz AHP') {
+      throw new Error(`Ordem ou nomes das abas incorretos: ${workbookOrder.join(', ')}`);
+    }
     await page.getByRole('button', { name: /Processar Matriz/i }).click();
     const stored = await page.evaluate(() => ({
       criteria: JSON.parse(localStorage.getItem('ahp_criteria')),
       matrix: JSON.parse(localStorage.getItem('ahp_uploadedMatrix'))
     }));
     if (stored.criteria.length !== 3 || stored.matrix.length !== 3) throw new Error('A matriz XLSX não foi armazenada corretamente.');
-    console.log(JSON.stringify({ offsets, accept, criteria: stored.criteria, matrix: stored.matrix }));
+    console.log(JSON.stringify({ offsets, accept, workbookOrder, criteria: stored.criteria, matrix: stored.matrix }));
   } finally {
     await browser.close();
     server.close();
